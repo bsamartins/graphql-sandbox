@@ -5,6 +5,7 @@ plugins {
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
     kotlin("jvm") version "1.6.21"
     kotlin("plugin.spring") version "1.6.21"
+    id("com.netflix.dgs.codegen") version "latest.release"
 }
 
 group = "io.bsamartins.graphql"
@@ -32,4 +33,12 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+tasks.named<com.netflix.graphql.dgs.codegen.gradle.GenerateJavaTask>("generateJava") {
+    packageName = "io.bsamartins.graphql.model"
+}
+
+tasks.named("compileKotlin") {
+    dependsOn += "generateJava"
 }

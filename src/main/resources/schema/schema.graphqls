@@ -1,0 +1,23 @@
+directive @permissions(
+    name: String!
+) on FIELD_DEFINITION
+
+schema {
+    query: Query
+}
+
+type Query {
+    findMovies: [MovieModel]!
+}
+
+type MovieModel {
+    id: Int!
+    title: String!
+    director: DirectorModel!
+}
+
+type DirectorModel {
+    id: Int!
+    name: String!
+    salary: Float! @permissions(name: "salary")
+}

@@ -1,4 +1,4 @@
-package io.bsamartins.graphql.graphqlsandbox
+package io.bsamartins.graphql
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
