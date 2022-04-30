@@ -1,23 +1,20 @@
-directive @permissions(
-    name: String!
-) on FIELD_DEFINITION
+directive @secured(requires : String!) on FIELD_DEFINITION | OBJECT
 
 schema {
     query: Query
 }
 
 type Query {
-    findMovies: [MovieModel]!
+    findUsers: [UserModel]!
 }
 
-type MovieModel {
-    id: Int!
-    title: String!
-    director: DirectorModel!
+type UserModel {
+    id: Int
+    name: String
+    employment: EmploymentModel @secured(requires: "user-employment")
+    email: String @secured(requires: "user-email")
 }
 
-type DirectorModel {
-    id: Int!
-    name: String!
-    salary: Float! @permissions(name: "salary")
+type EmploymentModel @secured(requires: "employment") {
+    salary: Float
 }
