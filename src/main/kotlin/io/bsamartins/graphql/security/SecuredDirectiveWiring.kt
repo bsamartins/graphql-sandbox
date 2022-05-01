@@ -62,6 +62,7 @@ class SecuredDirectiveWiring(private val directiveEvaluator: SecuredDirectiveEva
         if (!field.hasDirective(SECURED_DIRECTIVE) && !parentType.hasDirective(SECURED_DIRECTIVE)) {
             return field
         }
+        log.info("onField applying directive wiring to parent={}, field={}", parentType.name, field.name)
         val authDataFetcher = DataFetcher { dataFetchingEnvironment ->
             val path = dataFetchingEnvironment.executionStepInfo.path
             log.info("onField path={}", path)
