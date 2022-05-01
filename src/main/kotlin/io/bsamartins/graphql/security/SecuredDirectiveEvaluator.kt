@@ -7,12 +7,12 @@ import org.springframework.stereotype.Component
 class SecuredDirectiveEvaluator() {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    fun evaluateField(fieldName: String, path: String, requiredFieldRole: String?, requiredTypeRole: String?, roles: Set<String> = emptySet()): Boolean {
+    fun evaluateField(path: String, requiredFieldRole: String?, requiredTypeRole: String?, roles: Set<String> = emptySet()): Boolean {
         logger.info("Evaluating field [{}] typeRole[{}], fieldRole[{}]", path, requiredTypeRole, requiredFieldRole)
         if (requiredTypeRole != null && requiredTypeRole !in roles) {
             return false
         }
-        if(requiredFieldRole != null && requiredFieldRole !in roles) {
+        if (requiredFieldRole != null && requiredFieldRole !in roles) {
             return false
         }
         return true

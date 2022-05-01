@@ -40,7 +40,6 @@ class SecuredDirectiveWiring(private val directiveEvaluator: SecuredDirectiveEva
             val fieldRequires = dataFetchingEnvironment.fieldDefinition.requiredRole()
             val resultBuilder = DataFetcherResult.newResult<Any>()
             val result = directiveEvaluator.evaluateField(
-                fieldName = field.name,
                 path = path.toString(),
                 requiredFieldRole = fieldRequires,
                 requiredTypeRole = typeRequires,
