@@ -32,18 +32,20 @@ class SecuredDirectiveWiring(private val directiveEvaluator: SecuredDirectiveEva
         for (fieldDefinition in field.fieldDefinitions) {
             val originalDataFetcher = environment.codeRegistry.getDataFetcher(parentType, fieldDefinition)
             val authDataFetcher = DataFetcher { dataFetchingEnvironment ->
-                log.info("onObject path={}", dataFetchingEnvironment.executionStepInfo.path)
+                val path = dataFetchingEnvironment.executionStepInfo.path
+                log.info("onObject path={}", path)
                 val requestData = DgsContext.getRequestData(dataFetchingEnvironment)
                 val userUuid = requestData!!.headers!!.getFirst("USER-UUID")
                 val resultBuilder = DataFetcherResult.newResult<Any>()
                 val result =
-                    directiveEvaluator.evaluateExpression(expressionValue.value, userUuid, fieldDefinition.name)
+                    directiveEvaluator.evaluateExpression(expressionValue.value, userUuid, fieldDefinition.name, path.toString())
                 if (result) {
                     return@DataFetcher originalDataFetcher[dataFetchingEnvironment]
                 } else {
-                    val locations = listOf(field.definition.sourceLocation)
-                    val resultPath = dataFetchingEnvironment.executionStepInfo.path
-                    return@DataFetcher resultBuilder.error(AccessDeniedError(locations, resultPath)).build()
+//                    val locations = listOf(field.definition.sourceLocation)
+//                    val resultPath = dataFetchingEnvironment.executionStepInfo.path
+                    return@DataFetcher resultBuilder.data(null).build()
+//                    return@DataFetcher resultBuilder.error(AccessDeniedError(locations, resultPath)).build()
                 }
             }
             // now change the field definition to have the new authorising data fetcher
@@ -63,14 +65,15 @@ class SecuredDirectiveWiring(private val directiveEvaluator: SecuredDirectiveEva
             return field
         }
         val authDataFetcher = DataFetcher { dataFetchingEnvironment ->
-            log.info("onField path={}", dataFetchingEnvironment.executionStepInfo.path)
+            val path = dataFetchingEnvironment.executionStepInfo.path
+            log.info("onField path={}", path)
             val requestData = DgsContext.getRequestData(dataFetchingEnvironment)
             val userUuid = requestData!!.headers!!.getFirst("USER-UUID")
             val expressionValue = dataFetchingEnvironment.fieldDefinition
                 .getDirective(SECURED_DIRECTIVE)
                 .getArgument(REQUIRES_ATTR).argumentValue.value as StringValue
             val resultBuilder = DataFetcherResult.newResult<Any>()
-            val result = directiveEvaluator.evaluateExpression(expressionValue.value, userUuid, field.name)
+            val result = directiveEvaluator.evaluateExpression(expressionValue.value, userUuid, field.name, path.toString())
             if (result) {
                 return@DataFetcher originalDataFetcher[dataFetchingEnvironment]
             } else {

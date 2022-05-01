@@ -15,7 +15,8 @@ class UserResolver {
                 id = 1,
                 name = "bla",
                 employment = EmploymentModel(
-                    salary = 100_000.0
+                    salary = 100_000.0,
+                    company = "ACME"
                 ),
                 email = "bla@hotmail.com"
             )

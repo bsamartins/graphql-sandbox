@@ -1,16 +1,13 @@
 package io.bsamartins.graphql.security
 
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.BeanFactory
-import org.springframework.context.expression.BeanFactoryResolver
-import org.springframework.expression.ExpressionParser
-import org.springframework.expression.spel.standard.SpelExpressionParser
-import org.springframework.expression.spel.support.StandardEvaluationContext
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 
 @Component
-class SecuredDirectiveEvaluator(private val beanFactory: BeanFactory) {
-    // "admin"
-    val roles: Set<String> = setOf()
+class SecuredDirectiveEvaluator(private val beanFactory: BeanFactory, @Value("\${io.bsamartins.roles:}") private val roles: Set<String>) {
+    private val logger = LoggerFactory.getLogger(this::class.java)
 //    fun evaluateExpression(expressionValue: String, userUuid: String?, fieldName: String): Boolean {
 //        val context = StandardEvaluationContext()
 //        context.setBeanResolver(BeanFactoryResolver(beanFactory))
@@ -19,7 +16,8 @@ class SecuredDirectiveEvaluator(private val beanFactory: BeanFactory) {
 //        val expression = expressionParser.parseExpression(expressionValue)
 //        return expression.getValue(context, Boolean::class.java)!!
 //    }
-    fun evaluateExpression(role: String, userUuid: String?, fieldName: String): Boolean {
+    fun evaluateExpression(role: String, userUuid: String?, fieldName: String, path: String?): Boolean {
+        logger.info("Evaluating path [{}] requiring role [{}]", path, role)
         return roles.contains(role)
     }
 }
