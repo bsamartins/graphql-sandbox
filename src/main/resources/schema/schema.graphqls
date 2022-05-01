@@ -17,5 +17,6 @@ type UserModel {
 
 type EmploymentModel @secured(requires: "employment") {
     company: String
+    email: String
     salary: Float
 }

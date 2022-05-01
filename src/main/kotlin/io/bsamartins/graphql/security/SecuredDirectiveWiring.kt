@@ -5,7 +5,6 @@ import com.netflix.graphql.dgs.context.DgsContext
 import graphql.execution.DataFetcherResult
 import graphql.language.StringValue
 import graphql.schema.DataFetcher
-import graphql.schema.DataFetchingEnvironment
 import graphql.schema.GraphQLFieldDefinition
 import graphql.schema.GraphQLObjectType
 import graphql.schema.idl.SchemaDirectiveWiring
@@ -35,10 +34,10 @@ class SecuredDirectiveWiring(private val directiveEvaluator: SecuredDirectiveEva
                 val path = dataFetchingEnvironment.executionStepInfo.path
                 log.info("onObject path={}", path)
                 val requestData = DgsContext.getRequestData(dataFetchingEnvironment)
-                val userUuid = requestData!!.headers!!.getFirst("USER-UUID")
+                val roles = requestData!!.headers!!["X-USER-ROLES"]?.toSet().orEmpty()
                 val resultBuilder = DataFetcherResult.newResult<Any>()
                 val result =
-                    directiveEvaluator.evaluateExpression(expressionValue.value, userUuid, fieldDefinition.name, path.toString())
+                    directiveEvaluator.evaluateObject(fieldDefinition.name, path.toString(), expressionValue.value, roles)
                 if (result) {
                     return@DataFetcher originalDataFetcher[dataFetchingEnvironment]
                 } else {
@@ -68,12 +67,12 @@ class SecuredDirectiveWiring(private val directiveEvaluator: SecuredDirectiveEva
             val path = dataFetchingEnvironment.executionStepInfo.path
             log.info("onField path={}", path)
             val requestData = DgsContext.getRequestData(dataFetchingEnvironment)
-            val userUuid = requestData!!.headers!!.getFirst("USER-UUID")
+            val roles = requestData!!.headers!!["X-USER-ROLES"]?.toSet().orEmpty()
             val expressionValue = dataFetchingEnvironment.fieldDefinition
                 .getDirective(SECURED_DIRECTIVE)
                 .getArgument(REQUIRES_ATTR).argumentValue.value as StringValue
             val resultBuilder = DataFetcherResult.newResult<Any>()
-            val result = directiveEvaluator.evaluateExpression(expressionValue.value, userUuid, field.name, path.toString())
+            val result = directiveEvaluator.evaluateField(field.name, path.toString(), expressionValue.value, roles)
             if (result) {
                 return@DataFetcher originalDataFetcher[dataFetchingEnvironment]
             } else {

@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 
 @Component
-class SecuredDirectiveEvaluator(private val beanFactory: BeanFactory, @Value("\${io.bsamartins.roles:}") private val roles: Set<String>) {
+class SecuredDirectiveEvaluator() {
     private val logger = LoggerFactory.getLogger(this::class.java)
 //    fun evaluateExpression(expressionValue: String, userUuid: String?, fieldName: String): Boolean {
 //        val context = StandardEvaluationContext()
@@ -16,8 +16,13 @@ class SecuredDirectiveEvaluator(private val beanFactory: BeanFactory, @Value("\$
 //        val expression = expressionParser.parseExpression(expressionValue)
 //        return expression.getValue(context, Boolean::class.java)!!
 //    }
-    fun evaluateExpression(role: String, userUuid: String?, fieldName: String, path: String?): Boolean {
-        logger.info("Evaluating path [{}] requiring role [{}]", path, role)
+    fun evaluateField(fieldName: String, path: String, role: String, roles: Set<String> = emptySet()): Boolean {
+        logger.info("Evaluating field path [{}] requiring role [{}]", path, role)
+        return roles.contains(role)
+    }
+
+    fun evaluateObject(fieldName: String, path: String, role: String, roles: Set<String> = emptySet()): Boolean {
+        logger.info("Evaluating object path [{}] requiring role [{}]", path, role)
         return roles.contains(role)
     }
 }
