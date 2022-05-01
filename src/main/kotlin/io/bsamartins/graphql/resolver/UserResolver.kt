@@ -1,4 +1,4 @@
-package io.bsamartins.graphql
+package io.bsamartins.graphql.resolver
 
 import com.netflix.graphql.dgs.DgsComponent
 import com.netflix.graphql.dgs.DgsData

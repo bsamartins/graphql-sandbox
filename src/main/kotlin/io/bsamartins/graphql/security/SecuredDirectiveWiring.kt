@@ -55,11 +55,12 @@ class SecuredDirectiveWiring(private val directiveEvaluator: SecuredDirectiveEva
     override fun onField(environment: SchemaDirectiveWiringEnvironment<GraphQLFieldDefinition>): GraphQLFieldDefinition {
         val field = environment.element
         val parentType = environment.fieldsContainer
+        val fieldType = field.type
         log.info("onField parent={}, field={}", parentType.name, field.name)
 
         // build a data fetcher that first checks authorisation roles before then calling the original data fetcher
         val originalDataFetcher = environment.codeRegistry.getDataFetcher(parentType, field)
-        if (!field.hasDirective(SECURED_DIRECTIVE) && !parentType.hasDirective(SECURED_DIRECTIVE)) {
+        if (!field.hasDirective(SECURED_DIRECTIVE) && !fieldType.hasDirective(SECURED_DIRECTIVE)) {
             return field
         }
         log.info("onField applying directive wiring to parent={}, field={}", parentType.name, field.name)
@@ -99,8 +100,10 @@ class SecuredDirectiveWiring(private val directiveEvaluator: SecuredDirectiveEva
 
 private fun GraphQLFieldDefinition.requiredRole(): String? {
     val value = this.getDirective(SecuredDirectiveWiring.SECURED_DIRECTIVE)
-        .getArgument(SecuredDirectiveWiring.REQUIRES_ATTR).argumentValue.value as StringValue
-    return value.value
+        ?.getArgument(SecuredDirectiveWiring.REQUIRES_ATTR)
+        ?.argumentValue
+        ?.value as? StringValue
+    return value?.value
 }
 
 private fun GraphQLOutputType.requiredRole(): String? {
@@ -112,7 +115,7 @@ private fun GraphQLOutputType.requiredRole(): String? {
     return value?.value
 }
 
-private fun GraphQLFieldsContainer.hasDirective(directiveName: String): Boolean {
+private fun GraphQLOutputType.hasDirective(directiveName: String): Boolean {
     if (this is GraphQLObjectType) {
         return this.hasDirective(directiveName)
     }
