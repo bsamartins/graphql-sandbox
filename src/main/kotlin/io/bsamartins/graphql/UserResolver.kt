@@ -4,6 +4,7 @@ import com.netflix.graphql.dgs.DgsComponent
 import com.netflix.graphql.dgs.DgsData
 import com.netflix.graphql.dgs.DgsDataFetchingEnvironment
 import com.netflix.graphql.dgs.DgsQuery
+import io.bsamartins.graphql.model.types.AddressModel
 import io.bsamartins.graphql.model.types.EmploymentModel
 import io.bsamartins.graphql.model.types.UserModel
 
@@ -15,8 +16,12 @@ class UserResolver {
         return listOf(
             UserModel(
                 id = 1,
-                name = "Tom Cruise",
-                email = "bla@hotmail.com"
+                name = "Sherlock Holmes",
+                email = "the.great.detective@hotmail.com",
+                address = AddressModel(
+                    addressLine1 = "21 Baker Street",
+                    country = "UK"
+                )
             )
         )
     }

@@ -13,6 +13,12 @@ type UserModel {
     name: String
     employment: EmploymentModel @secured(requires: "user-employment")
     email: String @secured(requires: "user-email")
+    address: AddressModel
+}
+
+type AddressModel @secured(requires: "address") {
+    addressLine1: String
+    country: String
 }
 
 type EmploymentModel @secured(requires: "employment") {
