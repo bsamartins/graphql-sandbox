@@ -17,10 +17,4 @@ class SecuredDirectiveEvaluator() {
         }
         return true
     }
-
-    fun evaluateObject(fieldName: String, path: String, role: String, roles: Set<String> = emptySet()): Boolean {
-        logger.info("Evaluating object path [{}] requiring role [{}]", path, role)
-        logger.info("User roles: {}", roles)
-        return role in roles
-    }
 }

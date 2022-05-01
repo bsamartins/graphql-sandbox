@@ -6,7 +6,6 @@ import graphql.execution.DataFetcherResult
 import graphql.language.StringValue
 import graphql.schema.DataFetcher
 import graphql.schema.GraphQLFieldDefinition
-import graphql.schema.GraphQLFieldsContainer
 import graphql.schema.GraphQLObjectType
 import graphql.schema.GraphQLOutputType
 import graphql.schema.idl.SchemaDirectiveWiring
@@ -19,38 +18,6 @@ import org.springframework.stereotype.Component
 class SecuredDirectiveWiring(private val directiveEvaluator: SecuredDirectiveEvaluator) : SchemaDirectiveWiring {
 
     private val log = LoggerFactory.getLogger(this::class.java)
-
-    override fun onObject(environment: SchemaDirectiveWiringEnvironment<GraphQLObjectType>): GraphQLObjectType {
-        val field = environment.element
-        val parentType = environment.fieldsContainer
-        log.info("onObject parent={}, field={}", parentType.name, field.name)
-
-        if (!field.hasDirective(SECURED_DIRECTIVE)) {
-            return field
-        }
-        val requires = field.requiredRole()!!
-        for (fieldDefinition in field.fieldDefinitions) {
-            val originalDataFetcher = environment.codeRegistry.getDataFetcher(parentType, fieldDefinition)
-            val authDataFetcher = DataFetcher { dataFetchingEnvironment ->
-                val path = dataFetchingEnvironment.executionStepInfo.path
-                log.info("onObject path={}", path)
-                val requestData = DgsContext.getRequestData(dataFetchingEnvironment)
-                val roles = requestData!!.headers!!["X-USER-ROLES"]?.firstOrNull()?.split(",")?.toSet().orEmpty()
-                val resultBuilder = DataFetcherResult.newResult<Any>()
-                val result =
-                    directiveEvaluator.evaluateObject(fieldDefinition.name, path.toString(), requires, roles)
-                if (result) {
-                    return@DataFetcher originalDataFetcher[dataFetchingEnvironment]
-                } else {
-                    log.info("Skipping field: {}", path)
-                    return@DataFetcher resultBuilder.data(null).build()
-                }
-            }
-            // now change the field definition to have the new authorising data fetcher
-            environment.codeRegistry.dataFetcher(parentType, fieldDefinition, authDataFetcher)
-        }
-        return field
-    }
 
     override fun onField(environment: SchemaDirectiveWiringEnvironment<GraphQLFieldDefinition>): GraphQLFieldDefinition {
         val field = environment.element
